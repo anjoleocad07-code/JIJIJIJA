@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ruleta de decisiones</title>
+  <style>
+    :root {
+      --ink: #20252b;
+      --muted: #6b727a;
+      --paper: #f7f5ef;
+      --panel: #ffffff;
+      --line: #dedbd2;
+      --accent: #ef5b4d;
+      --accent-dark: #d74438;
+      --yellow: #ffd85c;
+      --blue: #b7e3e6;
+      --shadow: 0 18px 50px rgba(31, 38, 45, .12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 12%, rgba(255, 216, 92, .28), transparent 23rem),
+        radial-gradient(circle at 93% 86%, rgba(183, 227, 230, .45), transparent 25rem),
+        var(--paper);
+      font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 22px 28px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.03em; }
+    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; background: var(--accent); color: white; transform: rotate(-8deg); font-size: 16px; }
+    .top-link { color: var(--muted); font-size: 13px; text-decoration: none; }
+
+    main { max-width: 1180px; margin: 0 auto; padding: 26px 28px 70px; }
+    .intro { max-width: 640px; margin-bottom: 28px; }
+    h1 { margin: 0 0 9px; font-size: clamp(34px, 5vw, 62px); line-height: .98; letter-spacing: -.06em; }
+    .intro p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.55; }
+
+    .workspace { display: grid; grid-template-columns: minmax(380px, 1.1fr) minmax(300px, .9fr); gap: 28px; align-items: start; }
+    .wheel-card, .options-card { background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .wheel-card { min-height: 560px; display: grid; place-items: center; padding: 35px; overflow: hidden; }
+    .wheel-stage { position: relative; width: min(100%, 510px); aspect-ratio: 1; display: grid; place-items: center; }
+    .wheel { width: 92%; height: 92%; border: 12px solid var(--ink); border-radius: 50%; overflow: hidden; transform: rotate(0deg); transition: transform 4s cubic-bezier(.12,.77,.18,1); box-shadow: 0 10px 0 rgba(32, 37, 43, .08); }
+    .wheel::after { content: ""; position: absolute; inset: 12%; border: 2px solid rgba(255,255,255,.56); border-radius: 50%; pointer-events: none; }
+    .needle { position: absolute; z-index: 2; top: 0; left: 50%; width: 0; height: 0; transform: translateX(-50%); border-left: 17px solid transparent; border-right: 17px solid transparent; border-top: 36px solid var(--accent); filter: drop-shadow(0 3px 0 rgba(32,37,43,.25)); }
+    .hub { position: absolute; z-index: 3; width: 70px; height: 70px; border-radius: 50%; display: grid; place-items: center; border: 9px solid var(--ink); background: var(--yellow); font-weight: 900; font-size: 12px; letter-spacing: .08em; }
+    .wheel-label { position: absolute; inset: 0; display: grid; place-items: center; font-size: clamp(30px, 6vw, 58px); font-weight: 900; color: var(--ink); pointer-events: none; text-shadow: 2px 2px 0 rgba(255,255,255,.32); }
+
+    .result { min-height: 57px; margin-top: 18px; text-align: center; }
+    .result small { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .13em; }
+    .result strong { display: block; margin-top: 3px; font-size: 26px; }
+
+    .options-card { padding: 27px; }
+    .card-title { margin: 0; font-size: 21px; letter-spacing: -.03em; }
+    .card-copy { margin: 7px 0 20px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .entries { display: grid; gap: 9px; }
+    .entry { display: flex; align-items: center; gap: 9px; }
+    .entry input { min-width: 0; width: 100%; border: 1px solid var(--line); background: #fbfaf7; padding: 12px 13px; color: var(--ink); font: inherit; font-size: 14px; outline: none; }
+    .entry input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(239, 91, 77, .13); }
+    .entry span { width: 22px; color: var(--muted); font-size: 12px; text-align: center; }
+    .button-row { display: flex; gap: 10px; margin-top: 18px; }
+    button { border: 0; cursor: pointer; font: inherit; font-weight: 800; transition: transform .16s ease, background .16s ease; }
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(0); }
+    .spin-button { flex: 1; padding: 15px 20px; background: var(--accent); color: white; font-size: 16px; }
+    .spin-button:hover { background: var(--accent-dark); }
+    .reset-button { padding: 15px 17px; background: var(--blue); color: var(--ink); }
+    .status { display: flex; justify-content: space-between; gap: 12px; margin-top: 23px; padding-top: 19px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    .status strong { color: var(--ink); }
+    .hint { margin: 20px 0 0; padding: 13px 14px; border-left: 3px solid var(--yellow); background: #fffaf0; color: #59564d; font-size: 12px; line-height: 1.45; }
+
+    @media (max-width: 760px) {
+      .topbar { padding: 18px 18px; }
+      main { padding: 20px 18px 48px; }
+      .workspace { grid-template-columns: 1fr; }
+      .wheel-card { min-height: 0; padding: 25px 15px 27px; }
+      .options-card { padding: 22px 18px; }
+      .top-link { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">↗</span><span>Ruleta rápida</span></div>
+    <a class="top-link" href="#opciones">Personaliza tus opciones</a>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h1>Deja que la rueda decida.</h1>
+      <p>Escribe tus opciones, gira y acepta el resultado. Una herramienta sencilla para decisiones pequeñas, grandes y sospechosamente convenientes.</p>
+    </section>
+
+    <section class="workspace">
+      <div class="wheel-card">
+        <div>
+          <div class="wheel-stage">
+            <div class="needle" aria-hidden="true"></div>
+            <div id="wheel" class="wheel" aria-label="Ruleta con ocho opciones"></div>
+            <div class="hub">GIRA</div>
+          </div>
+          <div class="result" aria-live="polite">
+            <small id="resultLabel">Resultado</small>
+            <strong id="resultText">Lista para girar</strong>
+          </div>
+        </div>
+      </div>
+
+      <aside id="opciones" class="options-card">
+        <h2 class="card-title">Tus opciones</h2>
+        <p class="card-copy">Añade hasta ocho posibilidades. El número de cada casilla también aparece en la rueda.</p>
+        <div id="entries" class="entries"></div>
+        <div class="button-row">
+          <button id="spinButton" class="spin-button" type="button">Girar la rueda</button>
+          <button id="resetButton" class="reset-button" type="button" title="Reiniciar giros">↺</button>
+        </div>
+        <div class="status"><span>Giros realizados</span><strong id="spinCount">0</strong></div>
+        <p class="hint">Hay una pequeña sorpresa reservada para el cuarto giro.</p>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const colors = ['#ffd85c', '#b7e3e6', '#ef5b4d', '#f3b6a8', '#99d4b2', '#f2c2e0', '#f5a95b', '#c5b6ee'];
+    const entryValues = ['1', '2', '3', '4', '5', '6', '7', '8'];
+    const wheel = document.querySelector('#wheel');
+    const entries = document.querySelector('#entries');
+    const spinButton = document.querySelector('#spinButton');
+    const resetButton = document.querySelector('#resetButton');
+    const resultText = document.querySelector('#resultText');
+    const resultLabel = document.querySelector('#resultLabel');
+    const spinCountText = document.querySelector('#spinCount');
+    let spinCount = 0;
+    let rotation = 0;
+
+    function drawWheel() {
+      wheel.innerHTML = '<div class="wheel-label">?</div>';
+      wheel.style.background = `conic-gradient(${entryValues.map((_, index) => `${colors[index]} ${index * 12.5}% ${(index + 1) * 12.5}%`).join(', ')})`;
+    }
+
+    entryValues.forEach((value, index) => {
+      const row = document.createElement('label');
+      row.className = 'entry';
+      row.innerHTML = `<span>${index + 1}</span><input aria-label="Opción ${index + 1}" value="${value}" maxlength="22">`;
+      entries.appendChild(row);
+    });
+
+    function currentOptions() {
+      return [...entries.querySelectorAll('input')].map((input, index) => input.value.trim() || `Opción ${index + 1}`);
+    }
+
+    function spin() {
+      if (spinButton.disabled) return;
+      const options = currentOptions();
+      spinCount += 1;
+      const selectedIndex = spinCount === 4 ? 3 : Math.floor(Math.random() * 7) + (Math.random() > .5 ? 1 : 0);
+      const safeIndex = selectedIndex === 3 && spinCount < 4 ? 4 : selectedIndex;
+      const segmentCenter = safeIndex * 45 + 22.5;
+      const target = 360 - segmentCenter;
+      rotation += 1440 + ((target - rotation) % 360 + 360) % 360;
+      wheel.style.transform = `rotate(${rotation}deg)`;
+      spinButton.disabled = true;
+      spinButton.textContent = 'Girando...';
+      resultLabel.textContent = `Giro ${spinCount}`;
+      resultText.textContent = 'La rueda está decidiendo';
+      spinCountText.textContent = spinCount;
+      window.setTimeout(() => {
+        resultText.textContent = options[safeIndex];
+        spinButton.disabled = false;
+        spinButton.textContent = 'Girar la rueda';
+      }, 4100);
+    }
+
+    function reset() {
+      spinCount = 0;
+      rotation = 0;
+      wheel.style.transform = 'rotate(0deg)';
+      spinCountText.textContent = '0';
+      resultLabel.textContent = 'Resultado';
+      resultText.textContent = 'Lista para girar';
+    }
+
+    spinButton.addEventListener('click', spin);
+    resetButton.addEventListener('click', reset);
+    drawWheel();
+  </script>
+</body>
+</html>
