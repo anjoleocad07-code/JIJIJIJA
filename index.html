@@ -54,9 +54,9 @@
 
     .options-card { padding: 0; }
     .card-title, .card-copy { display: none; }
-    .entries { display: grid; gap: 9px; }
+    .entries { display: grid; gap: 0; height: 270px; overflow-y: auto; border: 1px solid #999; background: #fff; }
     .entry { display: flex; align-items: center; gap: 0; }
-    .entry input { min-width: 0; width: 100%; height: 22px; padding: 2px 5px; border: 1px solid #999; background: #fff; color: var(--ink); font: inherit; font-size: 12px; outline: none; }
+    .entry input { min-width: 0; width: 100%; height: 22px; padding: 2px 5px; border: 0; background: #fff; color: var(--ink); font: inherit; font-size: 12px; outline: none; }
     .entry span { display: none; }
     .button-row { display: flex; gap: 5px; justify-content: flex-end; margin: 6px 0 25px; }
     button { border: 1px solid #999; cursor: pointer; font: inherit; font-size: 11px; padding: 3px 8px; background: #fff; }
@@ -126,11 +126,11 @@
       <aside id="opciones" class="options-card">
         <h2 class="card-title">Tus opciones</h2>
         <p class="card-copy">Añade hasta ocho posibilidades. El número de cada casilla también aparece en la rueda.</p>
-        <div id="entries" class="entries"></div>
         <div class="button-row">
           <button id="spinButton" class="spin-button" type="button">Iniciar</button>
           <button id="resetButton" class="reset-button" type="button" title="Reiniciar giros">Reiniciar</button>
         </div>
+        <div id="entries" class="entries"></div>
         <div class="status"><span>Giros realizados</span><strong id="spinCount">0</strong></div>
         <p class="hint">Hay una pequeña sorpresa reservada para el cuarto giro.</p>
         <div class="small-actions"><button type="button">Finalizar</button><button type="button">Por defecto</button></div>
